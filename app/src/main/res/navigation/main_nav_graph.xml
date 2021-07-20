@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/usersFragment">
+
+    <fragment
+        android:id="@+id/usersFragment"
+        android:name="list.user.listingapp.ui.component.users.UsersFragment"
+        android:label="fragment_users">
+        <action
+            android:id="@+id/action_user_to_userdetail"
+            app:destination="@id/userDetailFragment"
+            app:enterAnim="@android:anim/slide_out_right"
+            app:exitAnim="@android:anim/slide_in_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right">
+
+        </action>
+
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/userDetailFragment"
+        android:name="list.user.listingapp.ui.component.userdetail.UserDetailFragment"
+        tools:layout="@layout/fragment_user_detail" >
+        <argument
+            android:name="userinfo"
+            app:nullable="false"
+            app:argType="list.user.listingapp.data.local.entity.UserInfoEntity" />
+    </fragment>
+
+</navigation>
