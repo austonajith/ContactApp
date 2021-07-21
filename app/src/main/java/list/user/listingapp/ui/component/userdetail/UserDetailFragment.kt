@@ -21,6 +21,10 @@ import list.user.listingapp.databinding.FragmentUserDetailBinding
 import list.user.listingapp.ui.component.home.UsersAdapter
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.Locale
+
+
+
 
 @AndroidEntryPoint
 @ExperimentalPagingApi
@@ -98,7 +102,7 @@ class UserDetailFragment : Fragment() {
                 .into(ivDpBLur)
             tvMobile.text = userInfoEntity?.phone
             tvEmail.text = userInfoEntity?.email
-            tvDob.text = userInfoEntity?.dob
+            tvDob.text = getFormattedDate(userInfoEntity?.dob)
             tvName.text = userInfoEntity?.firstName+ " "+ userInfoEntity?.lastName
             ViewCompat.setTransitionName(binding.ivDp, "ivDp_${userInfoEntity?.uuid ?: "123"}")
             ViewCompat.setTransitionName(binding.tvName, "tvName_${userInfoEntity?.uuid ?: "123"}")
@@ -108,10 +112,12 @@ class UserDetailFragment : Fragment() {
     private fun getFormattedDate(dob: String?): String {
         try {
             dob?:return ""
-            val sdf = SimpleDateFormat("yyyy-MM-ddTHH:mm:ssZ", Locale.getDefault())
-            sdf.timeZone = TimeZone.getTimeZone("GMT")
-            val dobop = sdf.format(dob)
-            return dobop
+            val originalFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'", Locale.ENGLISH)
+            originalFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            val targetFormat = SimpleDateFormat("dd-MMM-yyyy",Locale.getDefault())
+            val date = originalFormat.parse(dob)?:return ""
+            val formattedDate: String = targetFormat.format(date)
+            return formattedDate
 
         }catch (e:Exception){
             e.printStackTrace()
