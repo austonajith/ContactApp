@@ -1,4 +1,4 @@
-package list.user.listingapp.ui.component.home
+package list.user.listingapp.ui.component.users
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

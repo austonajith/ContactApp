@@ -1,8 +1,10 @@
 package list.user.listingapp.ui.component.users
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +21,8 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.bumptech.glide.Glide
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.PermissionToken
@@ -33,8 +37,6 @@ import list.user.listingapp.data.local.entity.UserInfoEntity
 import list.user.listingapp.data.remote.network.Status
 import list.user.listingapp.databinding.FragmentUsersBinding
 import list.user.listingapp.databinding.RowUserAdapterBinding
-import list.user.listingapp.ui.component.home.OnUserClickListener
-import list.user.listingapp.ui.component.home.UsersAdapter
 import timber.log.Timber
 
 
@@ -47,6 +49,7 @@ class UsersFragment : Fragment() {
     private var isLocalSearchEnable = false
     private var adapter: UsersAdapter? = null
     private var client: FusedLocationProviderClient?=null
+    private var request: LocationRequest?=null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -97,11 +100,13 @@ class UsersFragment : Fragment() {
     }
 
     private fun fetchLocation() {
+
         val permission = ContextCompat.checkSelfPermission(
             requireContext(),
             Manifest.permission.ACCESS_FINE_LOCATION
         )
         if (permission != PackageManager.PERMISSION_GRANTED) {
+
             Dexter.withContext(requireContext())
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(object : PermissionListener {
@@ -121,9 +126,53 @@ class UsersFragment : Fragment() {
                     }
                 }).check()
         }else{
+            request = LocationRequest.create().apply {
+                interval = 100
+                fastestInterval = 50
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                maxWaitTime= 100
+            }
+            prepareGps()
             requestLocationUpdates()
         }
     }
+
+    private fun prepareGps() {
+
+        request?:return
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(request)
+            .addLocationRequest(request)
+
+        val task = LocationServices.getSettingsClient(requireContext()).checkLocationSettings(builder.build())
+
+        task.addOnCompleteListener {
+            try {
+                val response = task.getResult(ApiException::class.java)
+            }catch (e:ApiException){
+
+                when(e.statusCode){
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED->{
+                        try {
+                            val resolvable = e as ResolvableApiException
+                            resolvable.startResolutionForResult(
+                               requireActivity(),
+                                REQUEST_CHECK_SETTINGS
+                            )
+                        } catch (e: SendIntentException) {
+                            Timber.d(e)
+                        } catch (e: ClassCastException) {
+                            Timber.d(e)
+                        }
+                    }
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE->{
+
+                    }
+                }
+            }
+        }
+    }
+
 
     private fun initViews() {
         setupAdapter()
@@ -155,10 +204,7 @@ class UsersFragment : Fragment() {
                 )
 
                 findNavController().navigate(
-                    UsersFragmentDirections.actionUserToUserdetail(
-                        model ?: return
-                    ), extras
-                )
+                    UsersFragmentDirections.actionUserToUserdetail(model ?: return), extras)
             }
         })
         binding.rvUsers.apply {
@@ -205,12 +251,7 @@ class UsersFragment : Fragment() {
     }
 
     private fun requestLocationUpdates() {
-        val request = LocationRequest.create().apply {
-            interval = 100
-            fastestInterval = 50
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            maxWaitTime= 100
-        }
+
 
         client =  LocationServices.getFusedLocationProviderClient(requireContext())
         val permission = ContextCompat.checkSelfPermission(
@@ -233,6 +274,10 @@ class UsersFragment : Fragment() {
             }
 
         }
+    }
+
+    companion object{
+        val REQUEST_CHECK_SETTINGS = 134
     }
 
 }

@@ -18,7 +18,6 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 import list.user.listingapp.data.local.entity.UserInfoEntity
 import list.user.listingapp.data.remote.network.Status
 import list.user.listingapp.databinding.FragmentUserDetailBinding
-import list.user.listingapp.ui.component.home.UsersAdapter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.Locale
@@ -34,7 +33,6 @@ class UserDetailFragment : Fragment() {
     private val args: UserDetailFragmentArgs by navArgs()
     private var userInfoEntity: UserInfoEntity? = null
     private lateinit var binding: FragmentUserDetailBinding
-    var adapter: UsersAdapter? = null
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

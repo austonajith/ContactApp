@@ -1,4 +1,4 @@
-package list.user.listingapp.ui.component.home
+package list.user.listingapp.ui.component.users
 
 import list.user.listingapp.data.local.entity.UserInfoEntity
 import list.user.listingapp.databinding.RowUserAdapterBinding
